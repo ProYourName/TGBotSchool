@@ -20,9 +20,9 @@ with open(os.path.abspath("schoollist.json"), 'r') as js:
 
 
 Clusters = [
-    InlineKeyboardButton(text="Кластер 1", callback_data=ChoiceCluster(cluster_number=1,cluster_name="Cluster1").pack()),
-    InlineKeyboardButton(text="Кластер 2", callback_data=ChoiceCluster(cluster_number=2,cluster_name="Cluster2").pack()),
-    InlineKeyboardButton(text="Кластер 3", callback_data=ChoiceCluster(cluster_number=3,cluster_name="Cluster3").pack())
+    InlineKeyboardButton(text="Чертаново", callback_data=ChoiceCluster(cluster_number=1,cluster_name="Cluster1").pack()),
+    InlineKeyboardButton(text="Аннино", callback_data=ChoiceCluster(cluster_number=2,cluster_name="Cluster2").pack()),
+    InlineKeyboardButton(text="Варшавская", callback_data=ChoiceCluster(cluster_number=3,cluster_name="Cluster3").pack())
 ]
 
 Keyboard_clusters = {
