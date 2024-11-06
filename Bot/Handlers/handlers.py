@@ -10,7 +10,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.filters import Command,CommandStart, MagicData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from Bot.Keyboard.keyboards import Clusters, ChoiceCluster, Keyboard_clusters, ChoiceStructure, json_data
+from Bot.Keyboard.keyboards import Clusters, ChoiceCluster, Keyboard_clusters, ChoiceStructure, json_data, department, \
+    ChoiceDep
 from Bot.Database.database import Database
 
 router = Router()
@@ -33,12 +34,21 @@ async def cmd_start(message: Message, state: FSMContext):
 async def pass_check(message: Message, state: FSMContext):
     if message.text == "1337":
         builder = InlineKeyboardBuilder()
-        builder.add(*Clusters)
+        builder.add(*department)
         builder.adjust(1)
-        await message.answer("Вы успешно авторизовались. Выберите вашу площадку",
+        await message.answer("Вы успешно авторизовались. Выберите отдел",
                              reply_markup=builder.as_markup())
     else:
         await message.answer("Ваш пароль неверный! Повторите попытку")
+
+@router.callback_query(ChoiceDep.filter())
+async def department_callback(callback: CallbackQuery,callback_data: ChoiceDep):
+    user_message.update({"department":callback_data.department_choice})
+    builder = InlineKeyboardBuilder()
+    builder.add(*Clusters)
+    builder.adjust(1)
+    await callback.message.answer("Выберите вашу площадку",
+                         reply_markup=builder.as_markup())
 
 @router.callback_query(ChoiceCluster.filter())
 async def cluster_callback(callback: CallbackQuery, callback_data: ChoiceCluster):
@@ -67,7 +77,7 @@ async def get_class(message: Message,state: FSMContext):
 async def report(message: Message,bot: Bot):
     user_message.update({"message": message.text})
     await message.answer("Ваше сообещение передано в тех. поддержку")
-    database.add_data(user_message)
-    #await bot.send_message(chat_id="-4503968763",text=f"Получена новая заявка!\nАдрес - {user_message["address"]}\nНомер аудитории - {user_message["class_number"]}\nСообщение - {user_message["message"]}")
+    #database.add_data(user_message)
+    await bot.send_message(chat_id="-4503968763",text=f"Получена новая заявка!\nОтдел - {user_message["departmentgit"]}\nАдрес - {user_message["address"]}\nНомер аудитории - {user_message["class_number"]}\nСообщение - {user_message["message"]}")
     user_message.clear()
 
