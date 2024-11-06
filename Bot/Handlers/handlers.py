@@ -18,6 +18,7 @@ router = Router()
 user_message = {}
 database = Database()
 
+
 class Form(StatesGroup):
     await_pass = State()
     choose_class = State()
@@ -37,7 +38,7 @@ async def pass_check(message: Message, state: FSMContext):
         builder.add(*department)
         builder.adjust(1)
         await message.answer("Вы успешно авторизовались. Выберите отдел",
-                             reply_markup=builder.as_markup())
+                          reply_markup=builder.as_markup())
     else:
         await message.answer("Ваш пароль неверный! Повторите попытку")
 
@@ -64,7 +65,8 @@ async def platform_callback(callback: CallbackQuery, callback_data: ChoiceStruct
     user_message.update(
         {"address": json_data[f"cluster{callback_data.cluster_number}"][callback_data.structure_number]["address"],
          "name": json_data[f"cluster{callback_data.cluster_number}"][callback_data.structure_number]["name"],
-         "tg_id": callback.from_user.id}
+         "tg_id": callback.from_user.id,
+         "cluster_number": callback_data.cluster_number}
     )
 
 @router.message(Form.choose_class)
@@ -76,8 +78,25 @@ async def get_class(message: Message,state: FSMContext):
 @router.message(Form.write_message)
 async def report(message: Message,bot: Bot):
     user_message.update({"message": message.text})
-    await message.answer("Ваше сообещение передано в тех. поддержку")
-    #database.add_data(user_message)
-    await bot.send_message(chat_id="-4503968763",text=f"Получена новая заявка!\nОтдел - {user_message["departmentgit"]}\nАдрес - {user_message["address"]}\nНомер аудитории - {user_message["class_number"]}\nСообщение - {user_message["message"]}")
-    user_message.clear()
+    try:
+        await bot.send_message(chat_id=json_data[f"cluster{user_message["cluster_number"]}"][
+            len(json_data[f"cluster{user_message["cluster_number"]}"]) - 1][user_message["department"]],
+                            text=f"По Вашему кластеру получена новая заявка!\nОтдел - {user_message["department"]}\nАдрес - {user_message["address"]}\nНомер аудитории - {user_message["class_number"]}\nСообщение - {user_message["message"]}")
+        await message.answer("Ваше сообещение передано в тех. поддержку")
+        builder = InlineKeyboardBuilder()
+        builder.add(*department)
+        builder.adjust(1)
+        await message.answer("Выберите отдел",
+                             reply_markup=builder.as_markup())
+    except KeyError:
+        await message.answer("Вы забыли указать некоторые данные, необходимо начать заполнение заново")
+        builder = InlineKeyboardBuilder()
+        builder.add(*department)
+        builder.adjust(1)
+        await message.answer("Выберите отдел",
+                             reply_markup=builder.as_markup())
+    finally:
+        user_message.clear()
+        #database.add_data(user_message)
+        # #await bot.send_message(chat_id="-4503968763",text=f"Получена новая заявка!\nОтдел - {user_message["department"]}\nАдрес - {user_message["address"]}\nНомер аудитории - {user_message["class_number"]}\nСообщение - {user_message["message"]}")
 

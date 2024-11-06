@@ -8,8 +8,8 @@ class Database:
     def add_data(self,data):
         with self.connection:
             self.cursor.execute("INSERT INTO tickets (platform_name, platform_address, user_message, class_number, tg_id) VALUES (?,?,?,?,?)",(data["name"],data["address"],data["message"], data["class_number"], data["tg_id"]))
-
-
-
-
+    def get_data(self):
+        with self.connection:
+            self.cursor.execute("SELECT * FROM tickets WHERE id IS ?",(3,))
+            return self.cursor.fetchall()
 
