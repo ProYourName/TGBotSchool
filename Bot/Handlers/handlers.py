@@ -1,3 +1,4 @@
+import os
 from email.policy import default
 from imaplib import IMAP4
 import sqlite3
@@ -12,18 +13,18 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from Bot.Keyboard.keyboards import Clusters, ChoiceCluster, Keyboard_clusters, ChoiceStructure, json_data, department, \
     ChoiceDep
-from Bot.Database.database import Database
+from Bot.Database.database import database
+from dotenv import load_dotenv
 
 router = Router()
+load_dotenv()
 user_message = {}
-database = Database()
-
 
 class Form(StatesGroup):
+    admin = State()
     await_pass = State()
     choose_class = State()
     write_message = State()
-
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
@@ -39,6 +40,8 @@ async def pass_check(message: Message, state: FSMContext):
         builder.adjust(1)
         await message.answer("Вы успешно авторизовались. Выберите отдел",
                           reply_markup=builder.as_markup())
+    elif message.text == "228":
+        await state.set_state(Form.admin)
     else:
         await message.answer("Ваш пароль неверный! Повторите попытку")
 
@@ -79,9 +82,11 @@ async def get_class(message: Message,state: FSMContext):
 async def report(message: Message,bot: Bot):
     user_message.update({"message": message.text})
     try:
+        database.add_data(user_message)
+        db_info = database.get_newest()
         await bot.send_message(chat_id=json_data[f"cluster{user_message["cluster_number"]}"][
             len(json_data[f"cluster{user_message["cluster_number"]}"]) - 1][user_message["department"]],
-                            text=f"По Вашему кластеру получена новая заявка!\nОтдел - {user_message["department"]}\nАдрес - {user_message["address"]}\nНомер аудитории - {user_message["class_number"]}\nСообщение - {user_message["message"]}")
+                            text=f"По Вашему кластеру получена новая заявка!\nНомер заявки - {db_info[0][0]}\nОтдел - {db_info[0][3]}\nАдрес - {db_info[0][4]}\nНомер аудитории - {db_info[0][2]}\nСообщение - {db_info[0][5]}\nСтутус - {db_info[0][6]}")
         await message.answer("Ваше сообещение передано в тех. поддержку")
         builder = InlineKeyboardBuilder()
         builder.add(*department)
@@ -97,6 +102,5 @@ async def report(message: Message,bot: Bot):
                              reply_markup=builder.as_markup())
     finally:
         user_message.clear()
-        #database.add_data(user_message)
-        # #await bot.send_message(chat_id="-4503968763",text=f"Получена новая заявка!\nОтдел - {user_message["department"]}\nАдрес - {user_message["address"]}\nНомер аудитории - {user_message["class_number"]}\nСообщение - {user_message["message"]}")
+        #await bot.send_message(chat_id="-4503968763",text=f"Получена новая заявка!\nОтдел - {db_info[0][3]}\nАдрес - {db_info[0][5]}\nНомер аудитории - {db_info[0][2]}\nСообщение - {db_info[0][5]}")
 

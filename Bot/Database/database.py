@@ -7,9 +7,13 @@ class Database:
         self.cursor = self.connection.cursor()
     def add_data(self,data):
         with self.connection:
-            self.cursor.execute("INSERT INTO tickets (platform_name, platform_address, user_message, class_number, tg_id) VALUES (?,?,?,?,?)",(data["name"],data["address"],data["message"], data["class_number"], data["tg_id"]))
-    def get_data(self):
+            self.cursor.execute("INSERT INTO tickets (platform_name, platform_address, user_message, class_number, tg_id, status) VALUES (?,?,?,?,?,?)",(data["name"],data["address"],data["message"], data["class_number"], data["tg_id"], "В процессе"))
+    def get_newest(self):
         with self.connection:
-            self.cursor.execute("SELECT * FROM tickets WHERE id IS ?",(3,))
+            self.cursor.execute("SELECT * FROM tickets WHERE id = (SELECT MAX(id) FROM tickets)")
             return self.cursor.fetchall()
-
+    def get_data_by_id(self,index):
+        with self.connection:
+            self.cursor.execute("SELECT * FROM tickets WHERE id IS ?",(index,))
+            return self.cursor.fetchall()
+database = Database()
