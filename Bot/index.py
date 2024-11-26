@@ -1,8 +1,7 @@
 import asyncio
 import sys,os
 import logging
-import sqlite3
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from Bot.Handlers.handlers import router

@@ -16,4 +16,7 @@ class Database:
         with self.connection:
             self.cursor.execute("SELECT * FROM tickets WHERE id IS ?",(index,))
             return self.cursor.fetchall()
+    def update_status(self,index, status):
+        with self.connection:
+            self.cursor.execute("UPDATE tickets SET status = ? WHERE id = ?", (status, index))
 database = Database()

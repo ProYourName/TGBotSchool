@@ -1,14 +1,8 @@
-import os
-from email.policy import default
-from imaplib import IMAP4
-import sqlite3
-from inspect import stack
-
-from aiogram import Router,F,Bot
+from aiogram import Router,Bot
 from aiogram.types import Message
-from aiogram.filters.callback_data import CallbackQuery, CallbackData
+from aiogram.filters.callback_data import CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.filters import Command,CommandStart, MagicData
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from Bot.Keyboard.keyboards import Clusters, ChoiceCluster, Keyboard_clusters, ChoiceStructure, json_data, department, \
@@ -35,13 +29,12 @@ async def cmd_start(message: Message, state: FSMContext):
 @router.message(Form.await_pass)
 async def pass_check(message: Message, state: FSMContext):
     if message.text == "1337":
+        await state.clear()
         builder = InlineKeyboardBuilder()
         builder.add(*department)
         builder.adjust(1)
         await message.answer("Вы успешно авторизовались. Выберите отдел",
                           reply_markup=builder.as_markup())
-    elif message.text == "228":
-        await state.set_state(Form.admin)
     else:
         await message.answer("Ваш пароль неверный! Повторите попытку")
 

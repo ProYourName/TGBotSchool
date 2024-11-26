@@ -1,7 +1,4 @@
 import json
-from operator import index
-from random import choice
-
 from aiogram.types import InlineKeyboardButton
 from aiogram.filters.callback_data import CallbackData
 import os
