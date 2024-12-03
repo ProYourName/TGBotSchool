@@ -37,9 +37,16 @@ async def cmd_start(message: Message, state: FSMContext):
 async def pass_check(message: Message, state: FSMContext):
     if message.text == "1337":
         await state.clear()
-        await message.answer("Вы успешно авторизовались")
+        await message.answer("Вы успешно авторизовались. Для отправки заявки напишите команду /report")
     else:
         await message.answer("Ваш пароль неверный! Повторите попытку")
+
+@router.message(Command("my_reports"))
+async def user_reports(message: Message):
+    reports = database.get_data_by_tg_id(message.from_user.id)
+    for rep in reports:
+        await message.answer(f"Номер заявки - {rep[0]}\nНомер телефона - {rep[2]}\nФИО - {rep[3]}\nОтдел - {rep[5]}\nЗдание - {rep[6]}\nАдрес - {rep[7]}\nНомер аудитории - {rep[8]}\nСообщение - {rep[9]}\nСтатус - {rep[10]}")
+
 
 
 @router.message(Command("report"))
